@@ -5,6 +5,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
 import re
 import time
 from lxml import etree
@@ -20,7 +23,7 @@ class Chrome_drive():
         NoImage = {"profile.managed_default_content_settings.images": 2}  # 控制 没有图片
         option.add_experimental_option("prefs", NoImage)
         # option.add_argument('--headless')  #无头模式 不弹出浏览器
-        self.browser = webdriver.Chrome(executable_path="./chromedriver", options=option)
+        self.browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=option)
         self.browser.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
             'source': 'Object.defineProperty(navigator,"webdriver",{get:()=>undefined})'
         })  #去掉selenium的驱动设置
@@ -54,9 +57,8 @@ class Chrome_drive():
         self.browser.execute_script(js1)  # 打开新的网页标签
         self.browser.switch_to.window(self.browser.window_handles[-1])  # 此行代码用来定位当前页面窗口
         self.buffer()  # 网页滑动  成功切换
-        #等待元素加载出来
-        time.sleep(3)
-
+        
+        # 等待元素加载出来
         self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#J-items-content')))
         #获取网页的源代码
         html = self.browser.page_source
@@ -66,9 +68,26 @@ class Chrome_drive():
         self.close_window()
 
     def buffer(self): #滑动网页的
-        for i in range(33):
-            time.sleep(0.5)
-            self.browser.execute_script('window.scrollBy(0,380)', '')  # 向下滑行300像素。
+        """Scrolls down the page to ensure all lazy-loaded content is present."""
+        print("Scrolling page to load all content...")
+        last_height = self.browser.execute_script("return document.body.scrollHeight")
+        scroll_wait = WebDriverWait(self.browser, 5) # 5 second timeout for each scroll increment
+
+        while True:
+            # Scroll down to the bottom of the page
+            self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            # Wait for new content to load by checking if the page height has increased
+            try:
+                scroll_wait.until(
+                    lambda driver: driver.execute_script("return document.body.scrollHeight") > last_height
+                )
+                # Update height for the next iteration
+                last_height = self.browser.execute_script("return document.body.scrollHeight")
+            except TimeoutException:
+                # If the height doesn't increase after a scroll, we've reached the end.
+                print("Reached the end of the page.")
+                break
 
     def close_window(self):
         length=self.browser.window_handles
