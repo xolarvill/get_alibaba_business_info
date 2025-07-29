@@ -8,9 +8,9 @@ def open_requests(img, img_name):
     """
     下载图片并保存到指定目录
     
-    参数:
-    img - 图片URL
-    img_name - 保存的图片名称
+    :param img: 图片URL
+    :param img_name: 保存的图片名称
+    :return: 无返回值
     """
     img_url = 'https:' + img
     res = requests.get(img_url)
@@ -21,8 +21,8 @@ def get_product_img(csv_file='./alibaba_com_img.csv'):
     """
     从CSV文件中读取产品图片链接并下载图片
     
-    参数:
-    csv_file - CSV文件路径，默认为'./alibaba_com_img.csv'
+    :param csv_file: CSV文件路径，默认为'./alibaba_com_img.csv'
+    :return: 无返回值
     """
     # 确保downloads_picture目录存在
     if not os.path.exists("./downloads_picture"):

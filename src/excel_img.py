@@ -8,10 +8,9 @@ def write_pic(sht, cell, img_name):
     """
     将图片写入Excel单元格
     
-    参数:
-    sht - Excel工作表对象
-    cell - 单元格位置
-    img_name - 图片名称
+    :param sht: Excel工作表对象
+    :param cell: 单元格位置
+    :param img_name: 图片名称
     """
     path = f'./downloads_picture/{img_name}'
     print(path)
@@ -27,9 +26,9 @@ def insert_img_to_excel(excel_file='alibaba_com.xlsx', sheet_name='Sheet1'):
     """
     将下载好的产品图片插入到Excel表格中
     
-    参数:
-    excel_file - Excel文件路径，默认为'alibaba_com.xlsx'
-    sheet_name - 工作表名称，默认为'Sheet1'
+    :param excel_file: Excel文件路径，默认为'alibaba_com.xlsx'
+    :param sheet_name: 工作表名称，默认为'Sheet1'
+    :return: 无返回值
     """
     # 确保downloads_picture目录存在
     if not os.path.exists("./downloads_picture"):

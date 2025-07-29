@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from selenium.webdriver import ChromeOptions
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,7 +14,10 @@ import csv
 import os
 
 # Chrome驱动类
-class Chrome_drive():
+class ChromeDriver():
+    """
+    初始化chrome浏览器
+    """
     def __init__(self):
         option = ChromeOptions()
         option.add_experimental_option('excludeSwitches', ['enable-automation'])
@@ -32,6 +34,9 @@ class Chrome_drive():
         self.wait = WebDriverWait(self.browser, 12)
 
     def get_login(self):
+        """
+        登录阿里巴巴账号
+        """
         url='https://passport.alibaba.com/icbu_login.htm'
         self.browser.get(url)
         #这里进行人工登陆。
@@ -47,7 +52,9 @@ class Chrome_drive():
     def index_page(self, page, wd):
         """
         抓取索引页
-        :param page: 页码
+        :param 
+        page: 页码
+        wd: 搜索关键词
         """
         print('正在爬取第', page, '页')
 
@@ -68,7 +75,9 @@ class Chrome_drive():
         self.close_window()
 
     def buffer(self): #滑动网页的
-        """Scrolls down the page to ensure all lazy-loaded content is present."""
+        """
+        滑动网页，确保所有懒加载内容都已加载。
+        """
         print("Scrolling page to load all content...")
         last_height = self.browser.execute_script("return document.body.scrollHeight")
         scroll_wait = WebDriverWait(self.browser, 5) # 5 second timeout for each scroll increment
@@ -90,6 +99,9 @@ class Chrome_drive():
                 break
 
     def close_window(self):
+        """
+        关闭当前窗口
+        """
         length=self.browser.window_handles
         if len(length) > 3:
             self.browser.switch_to.window(self.browser.window_handles[1])
@@ -100,6 +112,8 @@ class Chrome_drive():
     def get_products(self, wd, html_text):
         """
         提取商品数据
+        :param wd: 搜索关键词
+        :param html_text: 网页源代码
         """
         e = etree.HTML(html_text)
         items = e.xpath('//div[@id="J-items-content"]//div[@class="item-main"]')
@@ -148,6 +162,10 @@ class Chrome_drive():
 
 # 保存CSV文件
 def save_csv(lise_line):
+    """
+    保存数据到CSV文件
+    :param lise_line: 数据列表
+    """
     csv_file_path = "./alibaba_com_img.csv"
     file = csv.writer(open(csv_file_path, 'a', newline="", encoding="utf-8"))
     file.writerow(lise_line)
@@ -156,10 +174,9 @@ def save_csv(lise_line):
 def get_business_info(keyword='henan', pages=31):
     """
     获取阿里巴巴国际站商家信息
-    
-    参数:
-    keyword - 搜索关键词，默认为'henan'
-    pages - 爬取页数，默认为31页
+    :param keyword: 搜索关键词，默认为'henan'
+    :param pages: 爬取页数，默认为31页
+    :return: 无返回值
     """
     # 确保downloads_picture目录存在
     if not os.path.exists("./downloads_picture"):
@@ -170,7 +187,7 @@ def get_business_info(keyword='henan', pages=31):
     save_csv(csv_title)
     
     # 初始化Chrome驱动并登录
-    run = Chrome_drive()
+    run = ChromeDriver()
     run.get_login() # 先登录
     
     # 爬取每一页
